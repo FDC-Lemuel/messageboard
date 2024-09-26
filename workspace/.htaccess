@@ -1,0 +1,12 @@
+# Redirect all traffic to the CakePHP folder
+RewriteEngine On
+
+# If the request is not for an existing file or directory
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Redirect to the CakePHP subdirectory
+RewriteRule ^(.*)$ /messageboard/$1 [L]
+
+# Optionally, if you want to redirect the base URL to the CakePHP folder's home page
+RewriteRule ^$ /messageboard/ [L]
