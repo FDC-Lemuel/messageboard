@@ -92,60 +92,23 @@
 			<div id="message-details" class="p-0">
 				<?php echo $this->element('message/message_details'); ?>
 			</div>
-			<div class="custom-control custom-switch w-auto">
+			<!-- <div class="custom-control custom-switch w-auto">
 				<input type="checkbox" class="custom-control-input" id="autorefresh">
 				<label class="custom-control-label ml-1" style="width: 300px;" for="autorefresh">Auto Refresh (Every 5 Seconds)</label>
-			</div>
+			</div> -->
 		</div>
-
 	</div>
 </div>
 <?php echo $this->element('conversation/conversation_list', ['conversations' => $conversations, 'max' => $max, 'conversation_id' => $conversation_id]); ?>
 <script>
-	let limit = 5;
-
-	function showmore(additional = 5, autoscroll = true) {
-		limit = limit + additional;
-		const searchTerm = $('#search_message').val().trim();
-		$.ajax({
-			url: '<?php echo $this->Html->url(['controller' => 'conversations', 'action' => 'view', $conversation_id]); ?>',
-			type: 'GET',
-			data: {
-				limit: limit,
-				searchTerm: searchTerm,
-				type: 'message'
-			},
-			success: function(response) {
-				const messageDetails = $('#messages-conversations');
-				var scrollPosition = messageDetails.scrollTop();
-				$('#message-details').html(response);
-
-				// Scroll to the bottom of the message-details div
-
-				if (autoscroll) {
-					messageDetails.scrollTop(messageDetails.prop("scrollHeight"));
-				} else {
-					// messageDetails.scrollTop(scrollPosition);
-				}
-			},
-			error: function(xhr, status, error) {
-				console.error(error);
-			}
-		});
-	};
-
-
 	$(document).ready(function() {
 		const $newReplyButton = $('#new-reply');
 		const $messageDetails = $('#message-details');
 		const $searchMessage = $('#search_message');
 		const $showMore = $('#show_more');
 		const $messageInput = $('#MessageInput');
-		const conversationId = <?php echo $conversation_id; ?>;
-		const baseUrl = '<?php echo $this->Html->url(['controller' => 'conversations', 'action' => 'view', $conversation_id]); ?>';
 		const max = <?php echo $counter; ?>;
 
-		// Toggle reply section and button text/styles
 		$newReplyButton.on('click', function() {
 			$('.reply-message').toggle();
 			$(this).toggleClass('btn-secondary btn-danger').text(function(_, text) {
@@ -154,19 +117,39 @@
 		});
 
 		let searchTimeout = null;
+		let counting = 0;
 		$searchMessage.on('keyup', function() {
 			clearTimeout(searchTimeout);
 			const searchTerm = $searchMessage.val().trim();
 			searchTimeout = setTimeout(function() {
 				$.ajax({
-					url: baseUrl,
+					url: api_url + '/searchMessages/' + conversation_id,
 					type: 'GET',
 					data: {
-						searchTerm: searchTerm,
+						q: searchTerm,
 						type: 'message'
 					},
 					success: function(response) {
-						$messageDetails.html(response);
+						$('#messages-conversations').html('');
+						count = counting + response.messages.length
+						if (count < response.count) {
+							$('#messages-conversations-container').show();
+							$('#messages-conversations').show();
+							$('#no-message-found').hide();
+							if (response.count > 5) {
+								$('#show_more').show();
+							} else {
+								$('#show_more').hide();
+							}
+							response.messages.forEach(function(message) {
+								$('#messages-conversations').append(convertToMessageHTML(message));
+							});
+						} else {
+							$('#show_more').hide();
+							$('#messages-conversations').hide();
+							$('#messages-conversations-container').hide();
+							$('#no-message-found').show();
+						}
 					},
 					error: function(xhr, status, error) {
 						console.error(error);
@@ -183,13 +166,18 @@
 			if ($messageBody.html().trim().length > 250) {
 				const messageId = $(this).attr('id');
 				$.ajax({
-					url: 'http://localhost/messages/view/' + messageId,
+					url: messages_url + '/view/' + messageId,
 					type: 'GET',
 					data: {
 						see_more: hasSeeMore
 					},
 					success: function(response) {
-						$messageBody.html(response);
+						console.log(response);
+						if (hasSeeMore) {
+							$messageBody.html(response.message + ' <button class="badge badge-warning badge-sm border-0" id="see_less" type="button">Show Less</button>');
+						} else {
+							$messageBody.html(response.truncated + ' <button class="badge badge-primary badge-sm border-0" id="see_more" type="button">Show More</button>');
+						}
 					},
 					error: function(xhr, status, error) {
 						console.error(error);
@@ -206,7 +194,7 @@
 			let messageDeleteButton = $(this);
 
 			$.ajax({
-				url: 'http://localhost/messages/delete/' + messageDeleteButton.attr('id'),
+				url: messages_url + '/delete/' + messageDeleteButton.attr('id'),
 				type: 'DELETE',
 				success: function(response) {
 					messageDeleteButton.closest('.message-group').fadeOut(500, function() {
@@ -216,11 +204,11 @@
 					setTimeout(function() {
 						let remainingMessages = $('.message-group').length;
 						if (remainingMessages < 1) {
-							window.location.href = 'http://localhost/conversations/add';
+							window.location.href = conversation_url + '/add';
 						} else {
 							show_more_conversation(0);
 						}
-					}, 600);
+					}, 700);
 				},
 				error: function(xhr, status, error) {
 					console.error(error);
@@ -233,13 +221,13 @@
 			event.preventDefault();
 			const message = $messageInput.val();
 			$.ajax({
-				url: 'http://localhost/messages/add/' + conversationId,
+				url: api_url + '/addMessage/' + conversation_id,
 				type: 'POST',
 				data: {
 					message: message,
 				},
 				success: function(response) {
-					$(response).hide().prependTo('#messages-conversations').fadeIn(500);
+					$(convertToMessageHTML(response)).hide().prependTo('#messages-conversations').fadeIn(500);
 					$messageInput.val('');
 					$messageInput.focus();
 					show_more_conversation(0);
@@ -249,42 +237,5 @@
 				}
 			});
 		});
-	});
-</script>
-
-<script>
-	let conversation_limit = 3;
-	const conversationId = <?php echo $conversation_id; ?>;
-	const baseUrl = '<?php echo $this->Html->url(['controller' => 'conversations', 'action' => 'view', $conversation_id]); ?>';
-
-	function show_more_conversation(additional = 3) {
-		conversation_limit = conversation_limit + additional;
-		$.ajax({
-			url: baseUrl,
-			type: 'GET',
-			data: {
-				conversation_limit: conversation_limit,
-				type: 'conversation'
-			},
-			success: function(response) {
-				$('#conversation_list').html(response);
-			},
-			error: function(xhr, status, error) {
-				console.error(error);
-			}
-		});
-	}
-	let refreshInterval;
-
-	$('#autorefresh').change(function() {
-		if ($(this).is(':checked')) {
-			refreshInterval = setInterval(() => {
-				showmore(0, false);
-				show_more_conversation(0);
-				console.log('Refresh Messages');
-			}, 5000);
-		} else {
-			clearInterval(refreshInterval);
-		}
 	});
 </script>

@@ -25,14 +25,3 @@
         </a>
     <?php endforeach; ?>
 </div>
-
-<?php if (count($conversations) < $max): ?>
-    <li class="list-group-item list-group-item-action border mt-2">
-        <?php echo $this->Form->button(__('Show More'), [
-            'class' => 'btn btn-sm text-center w-100',
-            'id' => 'show_more_conversations',
-            'type' => 'button',
-            'onclick' => 'show_more_conversation();'
-        ]); ?>
-    </li>
-<?php endif; ?>

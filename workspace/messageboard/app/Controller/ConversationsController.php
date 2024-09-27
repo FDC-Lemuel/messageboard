@@ -142,11 +142,11 @@ class ConversationsController extends AppController
 				'conditions' => array('ConversationMember.user_id' => $receiverUserId)
 			));
 
-			$sharedConversationId = array_intersect($authUserConversations, $receiverUserConversations);
-			if (!empty($sharedConversationId)) {
-				$conversationId = reset($sharedConversationId);
-				$this->Conversation->id = $conversationId;
-				$this->request->data['Conversation']['id'] = $conversationId;
+			$sharedConversation_id = array_intersect($authUserConversations, $receiverUserConversations);
+			if (!empty($sharedConversation_id)) {
+				$conversation_id = reset($sharedConversation_id);
+				$this->Conversation->id = $conversation_id;
+				$this->request->data['Conversation']['id'] = $conversation_id;
 			} else {
 				// Create new conversation
 				$this->Conversation->create();

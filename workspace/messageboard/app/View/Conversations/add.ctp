@@ -62,26 +62,3 @@
 		});
 	});
 </script>
-
-<script>
-	let conversation_limit = <?php echo $conversation_limit; ?>;	
-	const baseUrl = '<?php echo $this->Html->url(['controller' => 'conversations', 'action' => 'add']); ?>';
-
-	function show_more_conversation() {
-		conversation_limit = conversation_limit + 2;
-		$.ajax({
-			url: baseUrl,
-			type: 'GET',
-			data: {
-				conversation_limit: conversation_limit,
-				type: 'conversation'
-			},
-			success: function(response) {
-				$('#conversation_list').html(response);
-			},
-			error: function(xhr, status, error) {
-				console.error(error);
-			}
-		});
-	}
-</script>

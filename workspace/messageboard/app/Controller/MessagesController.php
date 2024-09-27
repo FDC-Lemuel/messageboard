@@ -47,6 +47,12 @@ class MessagesController extends AppController
 		if (!$this->Message->exists($id)) {
 			throw new NotFoundException(__('Invalid message'));
 		}
+		$this->autoRender = false;
+        $this->layout = 'ajax';
+        $this->response->type('json');
+
+        $this->loadModel('Message');
+
 		$options = array('conditions' => array('Message.' . $this->Message->primaryKey => $id));
 		$this->set('message', $this->Message->find('first', $options));
 
@@ -58,8 +64,11 @@ class MessagesController extends AppController
 				$this->set('see_more', false);
 			}
 		}
-
-		$this->layout = 'ajax';
+		
+		$ajax['message'] = $this->Message->find('first', $options);
+		$ajax['message'] = $ajax['message']['Message']['message'];
+		$ajax['truncated'] = truncateWithEllipsis($ajax['message'], 250);
+		return json_encode($ajax);
 	}
 
 	/**

@@ -36,6 +36,14 @@ $cakeVersion = __d('cake_dev', 'CakePHP %s', Configure::version())
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>
 	<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
+	<script>
+		const messages_url = '<?php echo $this->Html->url(['controller' => 'messages', 'action' => 'index']); ?>';
+		const conversation_url = '<?php echo $this->Html->url(['controller' => 'conversations', 'action' => 'index']); ?>';
+		const users_url = '<?php echo $this->Html->url(['controller' => 'users', 'action' => 'index']); ?>';
+		const api_url = '<?php echo $this->Html->url(['controller' => 'api', 'action' => 'index']); ?>';
+		const conversation_id = <?php echo $conversation_id ?? ''; ?>;
+	</script>
+
 	<?php
 	echo $this->Html->meta('icon');
 
@@ -44,7 +52,10 @@ $cakeVersion = __d('cake_dev', 'CakePHP %s', Configure::version())
 	echo $this->fetch('meta');
 	echo $this->fetch('css');
 	echo $this->fetch('script');
+
 	echo $this->Html->css('custom');
+	echo $this->Html->script('functions');
+	echo $this->Html->script('scripts');
 	?>
 	<style>
 		.form div {
