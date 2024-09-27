@@ -4,16 +4,24 @@
             echo $this->element('Message/message_card_parent', ['message' => $message]);
         endforeach; ?>
     </div>
-    <?php if ($counter > 5 && $counter > $limit): ?>
-        <div class="w-100 text-center mt-2">
-            <?php echo $this->Form->button('Show More', [
+    <div class="w-100 text-center mt-2 mb-0 d-flex justify-content-between">
+        <?php echo $this->Form->button('Refresh Messages', [
+            'class' => 'btn btn-info',
+            'id' => 'refresh-messages',
+            'type' => 'button',
+            'onclick' => 'show_more_conversation(0);showmore(0, false);'
+        ]); ?>
+
+        <?php if ($counter > 5 && $counter > $limit):
+            echo $this->Form->button('Show More', [
                 'class' => 'btn btn-primary',
                 'id' => 'show_more',
                 'type' => 'button',
                 'onclick' => 'showmore();'
-            ]); ?>
-        </div>
-    <?php endif; ?>
+            ]);
+        endif; ?>
+    </div>
+
 <?php else: ?>
     <div class="list-group-item list-group-item-action text-center">
         <div class="d-flex w-100 justify-content-between mb-0">

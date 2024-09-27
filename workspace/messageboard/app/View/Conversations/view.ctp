@@ -6,7 +6,7 @@
 			echo $this->Html->image(
 				$image_url,
 				[
-					'alt' => "Profile Image of " . h($recepient['User']['name']),
+					'alt' => 'Profile Image of ' . h($recepient['User']['name']),
 					'class' => 'img-fluid rounded-square',
 					'style' => 'width: 100px; margin-right: 10px;'
 				]
@@ -50,14 +50,12 @@
 		'id' => 'messageForm'
 	]); ?>
 	<div class="row pb-0 mb-0">
-		<div class="col-md-4 my-0">
+		<div class="col-md-3 my-0">
 			<h2 class="mb-0 text-black" style="color: black !important;"><?php echo __('Message Details'); ?></h2>
 		</div>
-		<div class="col-md-3 my-0 text-right">
+		<div class="col-md-5 my-0 text-right d-flex">
 			<input type="text" placeholder="Search Messages" class="form-control" id="search_message" style="width:100%; margin-top:0 !important;">
-		</div>
-		<div class="col-md-2 my-0">
-			<button class="btn btn-sm btn-secondary" id="new-reply" type="button">
+			<button class="btn btn-sm btn-secondary ml-1 w-50" id="new-reply" type="button">
 				New Reply
 			</button>
 		</div>
@@ -90,19 +88,24 @@
 		</div>
 	</div>
 	<div class="row mt-2">
-		<div class="col-md-8" id="message-details">
-			<?php echo $this->element('message/message_details'); ?>
+		<div class="col-md-8">
+			<div id="message-details" class="p-0">
+				<?php echo $this->element('message/message_details'); ?>
+			</div>
+			<div class="custom-control custom-switch w-auto">
+				<input type="checkbox" class="custom-control-input" id="autorefresh">
+				<label class="custom-control-label ml-1" style="width: 300px;" for="autorefresh">Auto Refresh (Every 5 Seconds)</label>
+			</div>
 		</div>
+
 	</div>
 </div>
 <?php echo $this->element('conversation/conversation_list', ['conversations' => $conversations, 'max' => $max, 'conversation_id' => $conversation_id]); ?>
-
 <script>
 	let limit = 5;
 
-	function showmore() {
-		limit = limit + 5;
-		console.log(limit);
+	function showmore(additional = 5, autoscroll = true) {
+		limit = limit + additional;
 		const searchTerm = $('#search_message').val().trim();
 		$.ajax({
 			url: '<?php echo $this->Html->url(['controller' => 'conversations', 'action' => 'view', $conversation_id]); ?>',
@@ -113,11 +116,17 @@
 				type: 'message'
 			},
 			success: function(response) {
+				const messageDetails = $('#messages-conversations');
+				var scrollPosition = messageDetails.scrollTop();
 				$('#message-details').html(response);
 
 				// Scroll to the bottom of the message-details div
-				const messageDetails = $('#messages-conversations');
-				messageDetails.scrollTop(messageDetails.prop("scrollHeight"));
+
+				if (autoscroll) {
+					messageDetails.scrollTop(messageDetails.prop("scrollHeight"));
+				} else {
+					// messageDetails.scrollTop(scrollPosition);
+				}
 			},
 			error: function(xhr, status, error) {
 				console.error(error);
@@ -206,7 +215,6 @@
 
 					setTimeout(function() {
 						let remainingMessages = $('.message-group').length;
-						console.log(remainingMessages);
 						if (remainingMessages < 1) {
 							window.location.href = 'http://localhost/conversations/add';
 						} else {
@@ -233,6 +241,7 @@
 				success: function(response) {
 					$(response).hide().prependTo('#messages-conversations').fadeIn(500);
 					$messageInput.val('');
+					$messageInput.focus();
 					show_more_conversation(0);
 				},
 				error: function(xhr, status, error) {
@@ -258,7 +267,6 @@
 				type: 'conversation'
 			},
 			success: function(response) {
-				//console.log(response);
 				$('#conversation_list').html(response);
 			},
 			error: function(xhr, status, error) {
@@ -266,4 +274,17 @@
 			}
 		});
 	}
+	let refreshInterval;
+
+	$('#autorefresh').change(function() {
+		if ($(this).is(':checked')) {
+			refreshInterval = setInterval(() => {
+				showmore(0, false);
+				show_more_conversation(0);
+				console.log('Refresh Messages');
+			}, 5000);
+		} else {
+			clearInterval(refreshInterval);
+		}
+	});
 </script>
