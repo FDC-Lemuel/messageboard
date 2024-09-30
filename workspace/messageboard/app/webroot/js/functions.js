@@ -1,23 +1,23 @@
-let offset = 0;
-let limit = 5;
-let counting = 5;
+let messages_offset = 0;
+let messages_limit = 5;
+let fetched_counting = 5;
 function show_more_messages() {
     const searchTerm = $('#search_message').val().trim();
     $.ajax({
         url: api_url + '/fetchmessages/' + conversation_id,
         type: 'GET',
         data: {
-            offset: offset + 5,
-            limit: limit,
+            offset: messages_offset + 5,
+            limit: messages_limit,
             q: searchTerm
         },
         success: function (response) {
             response.messages.forEach(function (message) {
                 $('#messages-conversations').append(convertToMessageHTML(message));
             });
-            counting = counting + response.messages.length
-            if (counting < response.count) {
-                offset = offset + 5;
+            fetched_counting = fetched_counting + response.messages.length
+            if (fetched_counting < response.count) {
+                messages_offset = messages_offset + 5;
                 $('#show_more').show();
             } else {
                 $('#show_more').hide();

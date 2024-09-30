@@ -95,13 +95,6 @@ class ConversationsController extends AppController
 		]);
 		$this->set('recepient', $recepient);
 		$this->set('conversations', $this->getMessageList($conversation_limit));
-
-		if ($this->request->is('ajax') && $this->request->query['type'] == 'message') {
-			$this->render('/elements/message/message_details');
-		}
-		if ($this->request->is('ajax') && $this->request->query['type'] == 'conversation') {
-			$this->render('/elements/conversation/conversation_card');
-		}
 	}
 
 	/**
@@ -191,10 +184,6 @@ class ConversationsController extends AppController
 				$this->Flash->error(__('The message could not be saved. Please, try again.'));
 			}
 		}
-
-		if ($this->request->is('ajax') && $this->request->query['type'] == 'conversation') {
-			$this->render('/elements/conversation/conversation_card');
-		}
 	}
 
 	/**
@@ -207,22 +196,6 @@ class ConversationsController extends AppController
 	public function edit($id = null)
 	{
 		return $this->redirect(array('action' => 'add'));
-		// if (!$this->Conversation->exists($id)) {
-		// 	throw new NotFoundException(__('Invalid conversation'));
-		// }
-		// if ($this->request->is(array('post', 'put'))) {
-		// 	if ($this->Conversation->save($this->request->data)) {
-		// 		$this->Flash->success(__('The conversation has been saved.'));
-		// 		return $this->redirect(array('action' => 'index'));
-		// 	} else {
-		// 		$this->Flash->error(__('The conversation could not be saved. Please, try again.'));
-		// 	}
-		// } else {
-		// 	$options = array('conditions' => array('Conversation.' . $this->Conversation->primaryKey => $id));
-		// 	$this->request->data = $this->Conversation->find('first', $options);
-		// }
-		// $users = $this->Conversation->User->find('list');
-		// $this->set(compact('users'));
 	}
 
 	/**

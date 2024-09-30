@@ -41,7 +41,6 @@
 <script>
 	$(document).ready(function() {
 		function formatState(state) {
-			console.log(state.element);
 			if (!state.id) {
 				return state.text;
 			}

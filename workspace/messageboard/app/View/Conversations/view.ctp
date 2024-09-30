@@ -47,7 +47,7 @@
 			'action' => 'view',
 			$conversation_id
 		],
-		'id' => 'messageForm'
+		'id' => 'message-form'
 	]); ?>
 	<div class="row pb-0 mb-0">
 		<div class="col-md-3 my-0">
@@ -66,7 +66,7 @@
 				'message',
 				[
 					'label' => false,
-					'id' => 'MessageInput',
+					'id' => 'message-input',
 					'type' => 'textarea',
 					'rows' => 3,
 					'class' => 'form-control',
@@ -101,63 +101,78 @@
 </div>
 <?php echo $this->element('conversation/conversation_list', ['conversations' => $conversations, 'max' => $max, 'conversation_id' => $conversation_id]); ?>
 <script>
-	$(document).ready(function() {
-		const $newReplyButton = $('#new-reply');
-		const $messageDetails = $('#message-details');
-		const $searchMessage = $('#search_message');
-		const $showMore = $('#show_more');
-		const $messageInput = $('#MessageInput');
-		const max = <?php echo $counter; ?>;
-
-		$newReplyButton.on('click', function() {
-			$('.reply-message').toggle();
-			$(this).toggleClass('btn-secondary btn-danger').text(function(_, text) {
-				return text === 'Cancel' ? 'New Reply' : 'Cancel';
-			});
+	$('#new-reply').on('click', function() {
+		$('.reply-message').toggle();
+		$(this).toggleClass('btn-secondary btn-danger').text(function(_, text) {
+			return text === 'Cancel' ? 'New Reply' : 'Cancel';
 		});
+	});
 
-		let searchTimeout = null;
-		let counting = 0;
-		$searchMessage.on('keyup', function() {
-			clearTimeout(searchTimeout);
-			const searchTerm = $searchMessage.val().trim();
-			searchTimeout = setTimeout(function() {
-				$.ajax({
-					url: api_url + '/searchMessages/' + conversation_id,
-					type: 'GET',
-					data: {
-						q: searchTerm,
-						type: 'message'
-					},
-					success: function(response) {
-						$('#messages-conversations').html('');
-						count = counting + response.messages.length
-						if (count < response.count) {
-							$('#messages-conversations-container').show();
-							$('#messages-conversations').show();
-							$('#no-message-found').hide();
-							if (response.count > 5) {
-								$('#show_more').show();
-							} else {
-								$('#show_more').hide();
-							}
-							response.messages.forEach(function(message) {
-								$('#messages-conversations').append(convertToMessageHTML(message));
-							});
+	$('#message-form').on('submit', function(event) {
+		event.preventDefault();
+		const message = $('#message-input').val();
+		$.ajax({
+			url: api_url + '/addMessage/' + conversation_id,
+			type: 'POST',
+			data: {
+				message: message,
+			},
+			success: function(response) {
+				$(convertToMessageHTML(response)).hide().prependTo('#messages-conversations').fadeIn(500);
+				const message_count = $('#messages-conversations').children().length;
+				$('#message-input').val('');
+				$('#message-input').focus();
+				show_more_conversation(0);
+			},
+			error: function(xhr, status, error) {
+				console.error(error);
+			}
+		});
+	});
+
+	let searchTimeout = null;
+	let search_counting = 0;
+	$('#search_message').on('keyup', function() {
+		clearTimeout(searchTimeout);
+		const searchTerm = $('#search_message').val().trim();
+		searchTimeout = setTimeout(function() {
+			$.ajax({
+				url: api_url + '/searchMessages/' + conversation_id,
+				type: 'GET',
+				data: {
+					q: searchTerm,
+					type: 'message'
+				},
+				success: function(response) {
+					$('#messages-conversations').html('');
+					count = search_counting + response.messages.length
+					if (count <= response.count && response.count != 0) {
+						$('#messages-conversations-container').show();
+						$('#messages-conversations').show();
+						$('#no-message-found').hide();
+						if (response.count > 5) {
+							$('#show_more').show();
 						} else {
 							$('#show_more').hide();
-							$('#messages-conversations').hide();
-							$('#messages-conversations-container').hide();
-							$('#no-message-found').show();
 						}
-					},
-					error: function(xhr, status, error) {
-						console.error(error);
+						response.messages.forEach(function(message) {
+							$('#messages-conversations').append(convertToMessageHTML(message));
+						});
+					} else {
+						$('#show_more').hide();
+						$('#messages-conversations').hide();
+						$('#messages-conversations-container').hide();
+						$('#no-message-found').show();
 					}
-				});
-			}, 1000);
-		});
+				},
+				error: function(xhr, status, error) {
+					console.error(error);
+				}
+			});
+		}, 1000);
+	});
 
+	$(document).ready(function() {
 		$(document).on('click', '.message-group', function() {
 			const $messageBody = $(this).find('.message-body');
 			const hasSeeMore = $(this).find('#see_more').length > 0;
@@ -172,11 +187,10 @@
 						see_more: hasSeeMore
 					},
 					success: function(response) {
-						console.log(response);
 						if (hasSeeMore) {
-							$messageBody.html(response.message + ' <button class="badge badge-warning badge-sm border-0" id="see_less" type="button">Show Less</button>');
+							$messageBody.html(response.message + ' <button class="badge badge-warning badge-sm border-0" id="see_less" type="button">See Less</button>');
 						} else {
-							$messageBody.html(response.truncated + ' <button class="badge badge-primary badge-sm border-0" id="see_more" type="button">Show More</button>');
+							$messageBody.html(response.truncated + ' <button class="badge badge-primary badge-sm border-0" id="see_more" type="button">See More</button>');
 						}
 					},
 					error: function(xhr, status, error) {
@@ -209,28 +223,6 @@
 							show_more_conversation(0);
 						}
 					}, 700);
-				},
-				error: function(xhr, status, error) {
-					console.error(error);
-				}
-			});
-		});
-
-
-		$('#messageForm').on('submit', function(event) {
-			event.preventDefault();
-			const message = $messageInput.val();
-			$.ajax({
-				url: api_url + '/addMessage/' + conversation_id,
-				type: 'POST',
-				data: {
-					message: message,
-				},
-				success: function(response) {
-					$(convertToMessageHTML(response)).hide().prependTo('#messages-conversations').fadeIn(500);
-					$messageInput.val('');
-					$messageInput.focus();
-					show_more_conversation(0);
 				},
 				error: function(xhr, status, error) {
 					console.error(error);
