@@ -1,5 +1,4 @@
 let messages_offset = 0;
-let messages_limit = 5;
 let fetched_counting = 5;
 
 function show_more_messages() {
@@ -9,7 +8,7 @@ function show_more_messages() {
         type: 'GET',
         data: {
             offset: messages_offset + 5,
-            limit: messages_limit,
+            limit: 5,
             q: searchTerm
         },
         success: function (response) {
@@ -72,7 +71,6 @@ function refresh_messages() {
                     $('#messages-conversations').prepend(convertToMessageHTML(message));
                 });
                 show_more_conversation(0);
-                console.log(response.messages.length);
                 if (response.messages.length > 0) {
                     // show_more_conversation(0);
                 }

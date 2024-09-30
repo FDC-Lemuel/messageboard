@@ -151,6 +151,8 @@
 						$('#no-message-found').hide();
 						if (response.count > 5) {
 							$('#show_more').show();
+							messages_offset = 0;
+							fetched_counting = 5;
 						} else {
 							$('#show_more').hide();
 						}
@@ -162,6 +164,8 @@
 						$('#messages-conversations').hide();
 						$('#messages-conversations-container').hide();
 						$('#no-message-found').show();
+												messages_offset = 5;
+						fetched_counting = 5;
 					}
 				},
 				error: function(xhr, status, error) {

@@ -4,9 +4,9 @@
             echo $this->element('Message/message_card_parent', ['message' => $message]);
         endforeach; ?>
     </div>
-    <div class="w-100 text-center p-0" id="show_more" style="display: <?php echo ($counter > 5 && $counter > $limit) ? 'block' : 'none'; ?>;">
+    <div class="w-100 text-center p-0 mb-0" id="show_more" style="display: <?php echo ($counter > 5 && $counter > $limit) ? 'block' : 'none'; ?>;">
         <?php echo $this->Form->button('Show More', [
-            'class' => 'bg-transparent border-bottom-1 border-left-0 border-right-0 border-top-0 p-1 text-primary border-primary',
+            'class' => 'btn btn-primary p-1 w-100',
             'type' => 'button',
             'onclick' => 'show_more_messages();',
         ]); ?>
