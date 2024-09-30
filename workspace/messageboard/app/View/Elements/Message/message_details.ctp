@@ -6,7 +6,7 @@
     </div>
     <div class="w-100 text-center p-0" id="show_more" style="display: <?php echo ($counter > 5 && $counter > $limit) ? 'block' : 'none'; ?>;">
         <?php echo $this->Form->button('Show More', [
-            'class' => 'badge badge-primary border-0',
+            'class' => 'bg-transparent border-bottom-1 border-left-0 border-right-0 border-top-0 p-1 text-primary border-primary',
             'type' => 'button',
             'onclick' => 'show_more_messages();',
         ]); ?>
@@ -20,12 +20,11 @@
     </div>
 </div>
 <div class="w-100 text-center mt-2 mb-0 d-flex justify-content-between">
-    <!-- <?php echo $this->Form->button('Refresh Messages', [
+    <?php echo $this->Form->button('Refresh Messages', [
                 'class' => 'btn btn-info',
-                'id' => 'refresh-messages',
                 'type' => 'button',
-                'onclick' => 'show_more_conversation(0);showmore(0, false);'
-            ]); ?> -->
+                'onclick' => 'refresh_messages();',
+            ]); ?>
     <div>
     </div>
 </div>

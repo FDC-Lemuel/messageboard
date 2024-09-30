@@ -55,7 +55,7 @@ $cakeVersion = __d('cake_dev', 'CakePHP %s', Configure::version())
 
 	echo $this->Html->css('custom');
 	echo $this->Html->script('functions');
-	echo $this->Html->script('scripts');
+	echo $this->Html->script('converter_functions');
 	?>
 	<style>
 		.form div {

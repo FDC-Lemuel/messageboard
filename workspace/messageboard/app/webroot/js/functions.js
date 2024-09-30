@@ -1,6 +1,7 @@
 let messages_offset = 0;
 let messages_limit = 5;
 let fetched_counting = 5;
+
 function show_more_messages() {
     const searchTerm = $('#search_message').val().trim();
     $.ajax({
@@ -54,4 +55,31 @@ function show_more_conversation(additional = 3) {
             console.error(error);
         }
     });
+}
+
+function refresh_messages() {
+    let last_message_id = $('#messages-conversations').children().first().data('message-id');
+    let searchTerm = $('#search_message').val().trim();
+    if (last_message_id != undefined) {
+        $.ajax({
+            url: api_url + '/refreshMessageList/' + conversation_id + '/' + last_message_id,
+            type: 'GET',
+            data: {
+                q: searchTerm
+            },
+            success: function (response) {
+                response.messages.forEach(function (message) {
+                    $('#messages-conversations').prepend(convertToMessageHTML(message));
+                });
+                show_more_conversation(0);
+                console.log(response.messages.length);
+                if (response.messages.length > 0) {
+                    // show_more_conversation(0);
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error(error);
+            }
+        });
+    }
 }

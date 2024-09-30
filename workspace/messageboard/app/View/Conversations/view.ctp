@@ -119,7 +119,6 @@
 			},
 			success: function(response) {
 				$(convertToMessageHTML(response)).hide().prependTo('#messages-conversations').fadeIn(500);
-				const message_count = $('#messages-conversations').children().length;
 				$('#message-input').val('');
 				$('#message-input').focus();
 				show_more_conversation(0);
@@ -173,13 +172,13 @@
 	});
 
 	$(document).ready(function() {
-		$(document).on('click', '.message-group', function() {
-			const $messageBody = $(this).find('.message-body');
-			const hasSeeMore = $(this).find('#see_more').length > 0;
-			const hasSeeLess = $(this).find('#see_less').length > 0;
+		$(document).on('click', '.message-group #see_more, .message-group #see_less', function() {
+			const messageBody = $(this).closest('.message-group').find('.message-body');
+			const hasSeeMore = messageBody.find('#see_more').length > 0;
+			const hasSeeLess = messageBody.find('#see_less').length > 0;
 
-			if ($messageBody.html().trim().length > 250) {
-				const messageId = $(this).attr('id');
+			if (messageBody.html().trim().length > 250) {
+				const messageId = $(this).closest('.message-group').data('message-id');
 				$.ajax({
 					url: messages_url + '/view/' + messageId,
 					type: 'GET',
@@ -188,9 +187,9 @@
 					},
 					success: function(response) {
 						if (hasSeeMore) {
-							$messageBody.html(response.message + ' <button class="badge badge-warning badge-sm border-0" id="see_less" type="button">See Less</button>');
+							messageBody.html(response.message + ' <button class="badge badge-warning badge-sm border-0" id="see_less" type="button">See Less</button>');
 						} else {
-							$messageBody.html(response.truncated + ' <button class="badge badge-primary badge-sm border-0" id="see_more" type="button">See More</button>');
+							messageBody.html(response.truncated + ' <button class="badge badge-primary badge-sm border-0" id="see_more" type="button">See More</button>');
 						}
 					},
 					error: function(xhr, status, error) {

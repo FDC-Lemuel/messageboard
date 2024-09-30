@@ -47,7 +47,7 @@ class ApiController extends AppController
                 'conversation_id' => $message['Message']['conversation_id'],
                 'user_id' => $message['Message']['user_id'],
                 'message' => $message['Message']['message'],
-                'created' => $message['Message']['created'],
+                'created' => date('m/d/Y h:iA', strtotime($message['Message']['created'])),
                 'name' => $message['User']['name'],
                 'avatar' => getAvatarURL($message['Message']['user_id']),
                 'position' => AuthComponent::user('id') == $message['Message']['user_id'] ? 'right' : 'left',
@@ -100,8 +100,8 @@ class ApiController extends AppController
             'id' => $this->Message->id,
             'conversation_id' => $message['Message']['conversation_id'],
             'user_id' => $message['Message']['user_id'],
-            'message' => $message['Message']['message'],
-            'created' => $message['Message']['created'],
+            'message' => truncateWithEllipsis($message['Message']['message'], 200),
+            'created' => date('m/d/Y h:iA', strtotime($message['Message']['created'])),
             'name' => $message['User']['name'],
             'avatar' => getAvatarURL($message['Message']['user_id']),
             'position' => AuthComponent::user('id') == $message['Message']['user_id'] ? 'right' : 'left',
@@ -146,7 +146,7 @@ class ApiController extends AppController
                 'conversation_id' => $message['Message']['conversation_id'],
                 'user_id' => $message['Message']['user_id'],
                 'message' => $message['Message']['message'],
-                'created' => $message['Message']['created'],
+                'created' => date('m/d/Y h:iA', strtotime($message['Message']['created'])),
                 'name' => $message['User']['name'],
                 'avatar' => getAvatarURL($message['Message']['user_id']),
                 'position' => AuthComponent::user('id') == $message['Message']['user_id'] ? 'right' : 'left',
@@ -249,11 +249,59 @@ class ApiController extends AppController
                 'conversation_id' => $message['Conversation']['id'],
                 'user_id' => $message['Receiver']['user_id'],
                 'message' => truncateWithEllipsis($message['LastMessage']['message']),
-                'modified' => $message['LastMessage']['modified'],
+                'modified' => date('m/d/Y h:iA', strtotime($message['LastMessage']['modified'])),
                 'name' => $message['ReceiverUser']['name'],
                 'avatar' => getAvatarURL($message['Receiver']['user_id']),
             );
         }, $conversations);
+
+        $formattedMessages['count'] = $count;
+
+        $this->response->body(json_encode($formattedMessages));
+    }
+
+    public function refreshMessageList($conversation_id, $message_id)
+    {
+        $this->autoRender = false;
+        $this->layout = 'ajax';
+        $this->response->type('json');
+
+        $this->loadModel('Messages');
+
+        $offset = $this->request->query['offset'] ?? 0;
+        $q = $this->request->query['q'] ?? '';
+    
+        $messages = $this->Message->find('all', array(
+            'conditions' => array(
+                'Message.conversation_id' => $conversation_id,
+                'Message.id >' => $message_id,
+                'Message.message LIKE' => '%' . $q . '%'
+            ),
+            'order' => array('Message.created' => 'DESC'),
+            'fields' => array('Message.id', 'Message.conversation_id', 'Message.user_id', 'Message.message', 'Message.created', 'User.name'),
+            'recursive' => 0,
+            'limit' => $offset
+        ));
+
+        $count = $this->Message->find('count', array(
+            'conditions' => array(
+                'Message.conversation_id' => $conversation_id,
+                'Message.id >' => $message_id
+            ),
+        ));
+
+        $formattedMessages['messages'] = array_map(function ($message) {
+            return array(
+                'id' => $message['Message']['id'],
+                'conversation_id' => $message['Message']['conversation_id'],
+                'user_id' => $message['Message']['user_id'],
+                'message' => $message['Message']['message'],
+                'created' => date('m/d/Y h:iA', strtotime($message['Message']['created'])),
+                'name' => $message['User']['name'],
+                'avatar' => getAvatarURL($message['Message']['user_id']),
+                'position' => AuthComponent::user('id') == $message['Message']['user_id'] ? 'right' : 'left',
+            );
+        }, $messages);
 
         $formattedMessages['count'] = $count;
 

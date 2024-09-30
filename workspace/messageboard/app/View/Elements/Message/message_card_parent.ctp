@@ -1,5 +1,5 @@
 <?php $position = AuthComponent::user('id') == $message['Message']['user_id'] ? 'right' : 'left'; ?>
-<div class="message-group border-0 list-group-item list-group-item-action mb-0 p-0 text-<?php echo $position; ?> <?php echo $position == 'left' ? 'pl-0' : 'pr-0'; ?>" id="<?php echo $message['Message']['id']; ?>" style='margin-top:1px;'>
+<div class="message-group border-0 list-group-item list-group-item-action mb-0 p-0 text-<?php echo $position; ?> <?php echo $position == 'left' ? 'pl-0' : 'pr-0'; ?>" data-message-id="<?php echo $message['Message']['id']; ?>" style='margin-top:1px;'>
     <div class="mb-0 w-100 bg-<?php echo $position == 'left' ? 'secondary' : 'info'; ?> text-white mb-0">
         <div class="d-flex w-100 justify-content-between mb-0 p-0">
             <?php
@@ -14,7 +14,7 @@
                     'alt' => 'Profile Image of ' . h($message['User']['name']),
                     'class' => 'img-fluid rounded-square',
                     'id' => 'profileImage',
-                    'style' => 'width: 50px; max-height: 100px;'
+                    'style' => 'width: 50px; max-height: 80px;'
                 ]
             );
 
