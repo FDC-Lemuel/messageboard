@@ -19,12 +19,10 @@
         </div>
     </div>
 </div>
-<div class="w-100 text-center mt-2 mb-0 d-flex justify-content-between">
+<!-- <div class="w-100 text-center mt-2 mb-0 d-flex justify-content-between">
     <?php echo $this->Form->button('Refresh Messages', [
-                'class' => 'btn btn-info',
-                'type' => 'button',
-                'onclick' => 'refresh_messages();',
-            ]); ?>
-    <div>
-    </div>
-</div>
+        'class' => 'btn btn-info',
+        'type' => 'button',
+        'onclick' => 'refresh_messages();',
+    ]); ?>
+</div> -->

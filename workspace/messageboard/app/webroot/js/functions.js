@@ -56,8 +56,8 @@ function show_more_conversation(additional = 3) {
     });
 }
 
+let last_message_id = $('#messages-conversations').children().first().data('message-id');
 function refresh_messages() {
-    let last_message_id = $('#messages-conversations').children().first().data('message-id');
     let searchTerm = $('#search_message').val().trim();
     if (last_message_id != undefined) {
         $.ajax({
@@ -70,6 +70,7 @@ function refresh_messages() {
                 response.messages.forEach(function (message) {
                     $('#messages-conversations').prepend(convertToMessageHTML(message));
                 });
+                last_message_id = $('#messages-conversations').children().first().data('message-id');
                 show_more_conversation(0);
                 if (response.messages.length > 0) {
                     // show_more_conversation(0);
